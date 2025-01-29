@@ -1,11 +1,13 @@
 import {useReadContract, useAccount, useConnect, useDisconnect} from 'wagmi';
-import {Box, Heading, Image, Spinner, VStack, Text} from "@chakra-ui/react";
+import {Box, Heading, Image, Spinner, VStack, Text, Button} from "@chakra-ui/react";
+import WalletConnectionButtons from "@/components/WalletConnectionButtons";
+import LandingPage from "@/components/LandingPage";
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" // Remplace par l'adresse de ton contrat
 
 const abi = [
     {
-        "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+        "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
         "name": "getCard",
         "outputs": [
             {
@@ -30,16 +32,13 @@ const abi = [
 ] as const;
 
 export default function Home() {
-    const { address, isConnected } = useAccount();
-    const { connect, connectors } = useConnect();
-    const { disconnect } = useDisconnect();
-    const { data: card, isLoading, isError } = useReadContract({
+    const {isConnected} = useAccount();
+    const {data: card, isLoading, isError} = useReadContract({
         address: contractAddress,
         abi: abi,
         functionName: "getCard",
         args: [BigInt(1)], // Token ID
     });
-
 
 
     console.log("Card:", card);
@@ -50,35 +49,34 @@ export default function Home() {
     const [name, grade, imageUrl] = card || ["", 0, ""];
 
     return (
-        <Box>
-            <Heading>Ma carte Pokémon</Heading>
-            {!isConnected ? (
-                <button onClick={() => connect({ connector: connectors[0] })}>Connecter le wallet</button>
+        <Box
+            height="100vh"
+            display="flex"
+            flexDirection="column"
+        >
+            {isConnected ? (
+                isLoading ? (
+                    <VStack colorPalette="teal">
+                        <Spinner color="colorPalette.600"/>
+                        <Text color="colorPalette.600">Loading...</Text>
+                    </VStack>
+                ) : isError ? (
+                    <Text>Erreur lors de la récupération de la carte.</Text>
+                ) : card ? (
+                    <Box>
+                        <Text>Nom: {name}</Text>
+                        <Text>Grade: {grade.toString()}</Text>
+                        <Text>Image: <Image
+                            height="200px"
+                            src={imageUrl}
+                        /></Text>
+                    </Box>
+                ) : (
+                    <Text>Aucune carte trouvée.</Text>
+                )
             ) : (
-                <>
-                    <button onClick={() => disconnect?.()}>Déconnecter le wallet</button>
-                    <p>Connecté avec : {address}</p>
-                    {isLoading ? (
-                        <VStack colorPalette="teal">
-                            <Spinner color="colorPalette.600" />
-                            <Text color="colorPalette.600">Loading...</Text>
-                        </VStack>
-                    ) : isError ? (
-                        <p>Erreur lors de la récupération de la carte.</p>
-                    ) : card ? (
-                        <div>
-                            <p>Nom: {name}</p>
-                            <p>Grade: {grade.toString()}</p>
-                            <p>Image: <Image
-                                height="200px"
-                                src={imageUrl}
-                            /></p>
-                        </div>
-                    ) : (
-                        <p>Aucune carte trouvée.</p>
-                    )}
-                </>
+                <LandingPage/>
             )}
         </Box>
-    );
+    )
 }
