@@ -20,7 +20,7 @@ $ forge build
 ```shell
 $ anvil
 ```
-This is the result of this command in your terminal
+Here is the result of this command in your terminal
 
 ```shell
                              _   _

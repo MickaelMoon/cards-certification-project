@@ -1,6 +1,5 @@
-import {useReadContract, useAccount, useConnect, useDisconnect} from 'wagmi';
-import {Box, Heading, Image, Spinner, VStack, Text, Button} from "@chakra-ui/react";
-import WalletConnectionButtons from "@/components/WalletConnectionButtons";
+import {useReadContract, useAccount} from 'wagmi';
+import {Box, Image, Spinner, VStack, Text} from "@chakra-ui/react";
 import LandingPage from "@/components/LandingPage";
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" // Remplace par l'adresse de ton contrat
@@ -37,7 +36,7 @@ export default function Home() {
         address: contractAddress,
         abi: abi,
         functionName: "getCard",
-        args: [BigInt(1)], // Token ID
+        args: [BigInt(0)], // Token ID
     });
 
 
