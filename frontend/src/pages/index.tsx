@@ -1,81 +1,58 @@
-import {useReadContract, useAccount} from 'wagmi';
-import {Box, Image, Spinner, VStack, Text} from "@chakra-ui/react";
+import { useEffect, useState } from 'react';
+import { useReadContract, useAccount } from 'wagmi';
+import { Box, Text } from "@chakra-ui/react";
 import LandingPage from "@/components/LandingPage";
-
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3" // Remplace par l'adresse de ton contrat
-
-const abi = [
-    {
-        "inputs": [{"internalType": "uint256", "name": "tokenId", "type": "uint256"}],
-        "name": "getCard",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-            },
-            {
-                "internalType": "uint256",
-                "name": "grade",
-                "type": "uint256"
-            },
-            {
-                "internalType": "string",
-                "name": "imageUrl",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    }
-] as const;
+import { contractAddress, abi } from "@/config/contract";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import Card from "@/components/CardShowcase";
 
 export default function Home() {
-    const {isConnected} = useAccount();
-    const {data: card, isLoading, isError} = useReadContract({
+    const { isConnected } = useAccount();
+    const [isConnectionChecked, setIsConnectionChecked] = useState(false); // État pour vérifier si la connexion a été vérifiée
+
+    const { data: card, isLoading, isError } = useReadContract({
         address: contractAddress,
         abi: abi,
         functionName: "getCard",
         args: [BigInt(0)], // Token ID
     });
 
+    const [name, grade, imageUrl] = card || ["", BigInt(0), ""];
 
-    console.log("Card:", card);
-    console.log("Loading:", isLoading);
-    console.log("Error:", isError);
+    useEffect(() => {
+        // Simule une vérification de connexion
+        setTimeout(() => {
+            setIsConnectionChecked(true);
+        }, 500); // Temps d'attente pour simuler la vérification
+    }, []);
 
-    // Déstructurer le tableau retourné par `getCard`
-    const [name, grade, imageUrl] = card || ["", 0, ""];
+    // Affiche un spinner pendant que la connexion est en cours de vérification
+    if (!isConnectionChecked) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <Box
-            height="100vh"
+            height="calc(100vh - 12rem)"
             display="flex"
             flexDirection="column"
-        >
+            justifyContent="center"
+            alignItems="center"
+            padding="2rem"
+            >
             {isConnected ? (
                 isLoading ? (
-                    <VStack colorPalette="teal">
-                        <Spinner color="colorPalette.600"/>
-                        <Text color="colorPalette.600">Loading...</Text>
-                    </VStack>
+                    <LoadingSpinner />
                 ) : isError ? (
                     <Text>Erreur lors de la récupération de la carte.</Text>
                 ) : card ? (
-                    <Box>
-                        <Text>Nom: {name}</Text>
-                        <Text>Grade: {grade.toString()}</Text>
-                        <Text>Image: <Image
-                            height="200px"
-                            src={imageUrl}
-                        /></Text>
-                    </Box>
+                    <Card name={name} grade={grade} imageUrl={imageUrl} />
                 ) : (
                     <Text>Aucune carte trouvée.</Text>
                 )
             ) : (
-                <LandingPage/>
+                <LandingPage />
             )}
         </Box>
-    )
+    );
 }
