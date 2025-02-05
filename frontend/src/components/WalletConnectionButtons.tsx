@@ -31,7 +31,7 @@ export default function WalletConnectionButtons() {
                             <MenuItem color="fg.error" value="disconnect" onClick={() => disconnect?.()}>Déconnecter le wallet</MenuItem>
                         </MenuContent>
                     </MenuRoot>
-                    <Tooltip showArrow content={address} interactive>
+                    <Tooltip showArrow content={address} openDelay={100} interactive>
                         <Text cursor="pointer" truncate>Connecté avec : {address}</Text>
                     </Tooltip>
                 </Box>
