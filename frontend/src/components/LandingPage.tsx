@@ -2,8 +2,6 @@ import { Box, Heading, Text, Button, VStack } from "@chakra-ui/react";
 
 
 export default function LandingPage() {
-
-
     return (
         <Box
             height="100vh"
@@ -15,7 +13,7 @@ export default function LandingPage() {
         >
             <VStack gap="10">
                 <Heading as="h1" size="2xl" textAlign="center">
-                    Bienvenue à BiCertif
+                    Bienvenue sur Cardify
                 </Heading>
                 <Text fontSize="xl" textAlign="center">
                     Votre plateforme de confiance pour les certifications numériques de vos cartes physiques.
