@@ -1,5 +1,6 @@
 import { Box, Text, Image, Button } from "@chakra-ui/react";
 import { Card } from "@chakra-ui/react"
+import { Stack, Badge } from "@chakra-ui/react"
 
 interface CardShowcaseProps {
     name: string;
@@ -19,6 +20,10 @@ export default function CardShowcase({ name, grade, imageUrl }: CardShowcaseProp
                     <Card.Title>{name}</Card.Title>
                     <Card.Description>
                         Note: {grade.toString()}
+                        <Stack direction="row" flexWrap="wrap" mt="2">
+                            <Badge colorPalette="blue">VMAX</Badge>
+                            <Badge colorPalette="purple">ALTERNATIVE</Badge>
+                        </Stack>
                     </Card.Description>
                     <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">
                         $450

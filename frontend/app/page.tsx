@@ -1,32 +1,34 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useReadContract, useAccount } from 'wagmi';
-import { Box, Text } from "@chakra-ui/react";
-import LandingPage from "@/components/LandingPage";
-import { contractAddress, abi } from "@/config/contract";
-import LoadingSpinner from "@/components/LoadingSpinner";
-import Card from "@/components/CardShowcase";
+import { Box, Text } from '@chakra-ui/react';
+import LandingPage from '@/components/LandingPage';
+import { contractAddress, abi } from '@/config/contract';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import Card from '@/components/CardShowcase';
 
 export default function Home() {
     const { isConnected } = useAccount();
-    const [isConnectionChecked, setIsConnectionChecked] = useState(false); // État pour vérifier si la connexion a été vérifiée
+    const [isConnectionChecked, setIsConnectionChecked] = useState(false);
 
     const { data: card, isLoading, isError } = useReadContract({
         address: contractAddress,
         abi: abi,
-        functionName: "getCard",
+        functionName: 'getCard',
         args: [BigInt(0)], // Token ID
     });
 
-    const [name, grade, imageUrl] = card || ["", BigInt(0), ""];
+    // Supposons que card est un tableau [name, grade, imageUrl]
+    const [name, grade, imageUrl] = card || ['', BigInt(0), ''];
 
     useEffect(() => {
-        // Simule une vérification de connexion
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             setIsConnectionChecked(true);
-        }, 500); // Temps d'attente pour simuler la vérification
+        }, 500);
+        return () => clearTimeout(timer);
     }, []);
 
-    // Affiche un spinner pendant que la connexion est en cours de vérification
     if (!isConnectionChecked) {
         return <LoadingSpinner />;
     }
@@ -39,7 +41,7 @@ export default function Home() {
             justifyContent="center"
             alignItems="center"
             padding="2rem"
-            >
+        >
             {isConnected ? (
                 isLoading ? (
                     <LoadingSpinner />

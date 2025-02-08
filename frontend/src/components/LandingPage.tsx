@@ -18,7 +18,6 @@ export default function LandingPage() {
                 <Text fontSize="xl" textAlign="center">
                     Votre plateforme de confiance pour les certifications numériques de vos cartes physiques.
                 </Text>
-
             </VStack>
         </Box>
     );
