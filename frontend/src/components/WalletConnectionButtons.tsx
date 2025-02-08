@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Box, Text, Input, VStack, Field } from "@chakra-ui/react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { DialogBody, DialogActionTrigger, DialogContent, DialogHeader, DialogRoot, DialogTrigger } from "@/components/ui/dialog";
+import { DialogBody, DialogCloseTrigger, DialogContent, DialogHeader, DialogRoot, DialogTrigger } from "@/components/ui/dialog";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "@/components/ui/menu";
 import { NumberInputField, NumberInputRoot } from "@/components/ui/number-input";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -13,34 +13,51 @@ export default function WalletConnectionButtons() {
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [formData, setFormData] = useState({
-        owner: "",
+        owner: address || "",
         name: "",
         grade: "",
         imageUrl: "",
         amount: ""
     });
 
+    // 🔹 Fonction pour réinitialiser le formulaire
+    const resetFormData = () => {
+        setFormData({
+            owner: address || "",
+            name: "",
+            grade: "",
+            imageUrl: "",
+            amount: ""
+        });
+    };
+
+    // 🛠️ Réinitialiser les champs lorsque le modal s'ouvre
+    useEffect(() => {
+        if (isModalOpen) {
+            resetFormData();
+        }
+    }, [isModalOpen]); // Exécuté chaque fois que `isModalOpen` change
+
     const handleChange = (field: keyof typeof formData, value: string | number) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-    };    
+    };
 
     const handleSubmit = async () => {
         console.log("Données soumises :", formData);
-        //TODO intégrer l'interaction avec la blockchain
         setModalOpen(false);
     };
-    
+
     return (
-        <Box >
+        <Box>
             {!isConnected ? (
-                <Button colorPalette="blue" onClick={() => connect({ connector: connectors[0] })}>Connecter le wallet</Button>
+                <Button colorPalette="blue" onClick={() => connect({ connector: connectors[0] })}>
+                    Connecter le wallet
+                </Button>
             ) : (
                 <Box maxWidth="200px" display="flex" justifyContent="center" flexDirection="column">
                     <MenuRoot>
                         <MenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                                Menu
-                            </Button>
+                            <Button variant="outline" size="sm">Menu</Button>
                         </MenuTrigger>
                         <MenuContent>
                             <MenuItem value="new-file" onClick={() => setModalOpen(true)}>Certifier une carte</MenuItem>
@@ -56,12 +73,12 @@ export default function WalletConnectionButtons() {
 
             {/* Formulaire en modal */}
             <DialogRoot open={isModalOpen} onOpenChange={(details) => setModalOpen(details.open)}>
-
+                <DialogTrigger />
                 <DialogContent>
                     <DialogHeader>Certifier une carte</DialogHeader>
-                    <DialogActionTrigger asChild>
+                    <DialogCloseTrigger asChild>
                         <Button position="absolute" top="10px" right="10px">✕</Button>
-                    </DialogActionTrigger>
+                    </DialogCloseTrigger>
                     <DialogBody>
                         <VStack gap={4}>
                             <Field.Root required>
@@ -69,7 +86,7 @@ export default function WalletConnectionButtons() {
                                 <Input 
                                     placeholder="0x..." 
                                     value={formData.owner} 
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("owner", e.target.value)} 
+                                    onChange={(e) => handleChange("owner", e.target.value)} 
                                 />
                             </Field.Root>
 
@@ -78,14 +95,17 @@ export default function WalletConnectionButtons() {
                                 <Input 
                                     placeholder="Nom de la carte" 
                                     value={formData.name} 
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("name", e.target.value)} 
+                                    onChange={(e) => handleChange("name", e.target.value)} 
                                 />
                             </Field.Root>
 
                             <Field.Root required>
                                 <Field.Label>Grade (1-10)</Field.Label>
-                                <NumberInputRoot min={1} max={10}>
-                                    <NumberInputField value={formData.grade} onChange={(e) => handleChange("grade", e.target.value)} />
+                                <NumberInputRoot>
+                                    <NumberInputField 
+                                        value={formData.grade} 
+                                        onChange={(e) => handleChange("grade", e.target.value)} 
+                                    />
                                 </NumberInputRoot>
                             </Field.Root>
 
@@ -94,14 +114,17 @@ export default function WalletConnectionButtons() {
                                 <Input 
                                     placeholder="https://..." 
                                     value={formData.imageUrl} 
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange("imageUrl", e.target.value)} 
+                                    onChange={(e) => handleChange("imageUrl", e.target.value)} 
                                 />
                             </Field.Root>
 
                             <Field.Root required>
                                 <Field.Label>Quantité</Field.Label>
-                                <NumberInputRoot min={1}>
-                                    <NumberInputField value={formData.amount} onChange={(e) => handleChange("amount", e.target.value)} />
+                                <NumberInputRoot>
+                                    <NumberInputField 
+                                        value={formData.amount} 
+                                        onChange={(e) => handleChange("amount", e.target.value)} 
+                                    />
                                 </NumberInputRoot>
                             </Field.Root>
 
