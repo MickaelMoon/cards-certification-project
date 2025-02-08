@@ -20,7 +20,7 @@ export default function CardShowcase({ name, grade, imageUrl }: CardShowcaseProp
                     <Card.Title>{name}</Card.Title>
                     <Card.Description>
                         Note: {grade.toString()}
-                        <Stack direction="row" flexWrap="wrap" mt="2">
+                        <Stack as="span" direction="row" flexWrap="wrap" mt="2">
                             <Badge colorPalette="blue">VMAX</Badge>
                             <Badge colorPalette="purple">ALTERNATIVE</Badge>
                         </Stack>

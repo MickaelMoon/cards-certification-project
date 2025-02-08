@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Box, Text, Input, VStack, Field } from "@chakra-ui/react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { DialogBody, DialogCloseTrigger, DialogContent, DialogHeader, DialogRoot, DialogTrigger } from "@/components/ui/dialog";
+import { DialogBody, DialogActionTrigger, DialogContent, DialogHeader, DialogRoot, DialogTrigger } from "@/components/ui/dialog";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "@/components/ui/menu";
 import { NumberInputField, NumberInputRoot } from "@/components/ui/number-input";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -59,9 +59,9 @@ export default function WalletConnectionButtons() {
 
                 <DialogContent>
                     <DialogHeader>Certifier une carte</DialogHeader>
-                    <DialogCloseTrigger asChild>
+                    <DialogActionTrigger asChild>
                         <Button position="absolute" top="10px" right="10px">✕</Button>
-                    </DialogCloseTrigger>
+                    </DialogActionTrigger>
                     <DialogBody>
                         <VStack gap={4}>
                             <Field.Root required>
