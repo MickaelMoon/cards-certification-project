@@ -1,26 +1,40 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useReadContract, useAccount } from 'wagmi';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import LandingPage from '@/components/LandingPage';
-import { contractAddress, abi } from '@/config/contract';
+import { contractAddress, abi_getCard, abi_getCards } from '@/config/contract';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Card from '@/components/CardShowcase';
+
+// Composant enfant qui récupère une carte selon son id (tokenId)
+function CardItem({ id }: {id: number}) {
+    const { data: card, isLoading, isError } = useReadContract({
+        address: contractAddress,
+        abi: abi_getCard,
+        functionName: 'getCard',
+        args: [BigInt(id)],
+    });
+
+    if (isLoading) return <LoadingSpinner />;
+    if (isError) return <Text>Erreur lors de la récupération de la carte {id}.</Text>;
+    if (!card) return <Text>Aucune carte trouvée pour id {id}.</Text>;
+
+    // Supposons que card est un tableau [name, grade, imageUrl]
+    const [name, grade, imageUrl, amount] = card;
+    return <Card name={name} grade={grade} imageUrl={imageUrl} amount={amount} />;
+}
 
 export default function Home() {
     const { isConnected } = useAccount();
     const [isConnectionChecked, setIsConnectionChecked] = useState(false);
 
-    const { data: card, isLoading, isError } = useReadContract({
+    // Lecture du nombre total de cartes
+    const { data: numberOfCards, isLoading: isLoadingCount, isError: isErrorCount } = useReadContract({
         address: contractAddress,
-        abi: abi,
-        functionName: 'getCard',
-        args: [BigInt(0)], // Token ID
+        abi: abi_getCards,
+        functionName: 'getNumberOfCards',
     });
-
-    // Supposons que card est un tableau [name, grade, imageUrl]
-    const [name, grade, imageUrl] = card || ['', BigInt(0), ''];
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -43,14 +57,17 @@ export default function Home() {
             padding="2rem"
         >
             {isConnected ? (
-                isLoading ? (
+                isLoadingCount ? (
                     <LoadingSpinner />
-                ) : isError ? (
-                    <Text>Erreur lors de la récupération de la carte.</Text>
-                ) : card ? (
-                    <Card name={name} grade={grade} imageUrl={imageUrl} />
+                ) : isErrorCount ? (
+                    <Text>Erreur lors de la récupération du nombre de cartes.</Text>
                 ) : (
-                    <Text>Aucune carte trouvée.</Text>
+                    // Convertir le nombre récupéré (qui peut être un BigNumber) en nombre JavaScript
+                    <Stack direction="row" gap={10}>
+                        {Array.from({ length: Number(numberOfCards) }).map((_, index) => (
+                            <CardItem key={index} id={index} />
+                        ))}
+                    </Stack>
                 )
             ) : (
                 <LandingPage />

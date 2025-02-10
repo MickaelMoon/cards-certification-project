@@ -1,6 +1,6 @@
 'use client';
 import { Button, Box, Text, Input, VStack, Fieldset } from "@chakra-ui/react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useWriteContract } from "wagmi";
 import {
     DialogActionTrigger,
     DialogBody,
@@ -16,10 +16,15 @@ import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "@/components/ui/me
 import { Tooltip } from "@/components/ui/tooltip";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Field } from "@/components/ui/field"
+import {contractAddress, abi_certifyCard} from "@/config/contract";
+import {config} from "@/lib/wagmi";
+
+
+
 
 // Définition du type pour les données du formulaire
 interface CertifyCardFormData {
-    ownerAddress: string;
+    ownerAddress: `0x${string}`;
     cardName: string;
     grade: number;
     imageUrl: string;
@@ -31,6 +36,7 @@ export default function WalletConnectionButtons() {
     const { address, isConnected } = useAccount();
     const { connect, connectors } = useConnect();
     const { disconnect } = useDisconnect();
+    const { writeContractAsync } = useWriteContract({config})
 
     // Utilisation de React Hook Form avec le type dédié
     const {
@@ -41,9 +47,26 @@ export default function WalletConnectionButtons() {
     } = useForm<CertifyCardFormData>();
 
     // Fonction de soumission du formulaire
-    const onSubmit: SubmitHandler<CertifyCardFormData> = (data) => {
+    const onSubmit: SubmitHandler<CertifyCardFormData> = async (data) => {
         console.log("Données du formulaire :", data);
         // Ajoutez ici la logique pour certifier la carte
+        try {
+            const tx = await writeContractAsync({
+                abi: abi_certifyCard,
+                address: contractAddress,
+                functionName: 'certifyCard',
+                args: [
+                    data.ownerAddress,
+                    data.cardName,
+                    BigInt(data.grade),
+                    data.imageUrl,
+                    BigInt(data.quantity),
+                ],
+            });
+            console.log("Transaction envoyée :", tx);
+        } catch (error) {
+            console.error("Erreur lors de l'exécution de writeContract :", error);
+        }
         reset();
     };
 
@@ -74,7 +97,6 @@ export default function WalletConnectionButtons() {
                                         {/* Le formulaire est encapsulé dans une Fieldset */}
                                         <form onSubmit={handleSubmit(onSubmit)}>
                                             <Fieldset.Root size="lg" invalid={Object.keys(errors).length > 0}>
-                                                <Fieldset.Legend>Certifier une carte</Fieldset.Legend>
                                                 <Fieldset.Content>
                                                     <VStack gap={4}>
                                                         <Field label="Adresse du propriétaire" errorText={errors.ownerAddress?.message} invalid={!!errors.ownerAddress}>

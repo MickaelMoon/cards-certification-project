@@ -12,11 +12,12 @@ contract PokemonCertification is ERC1155, Ownable {
         string name;
         uint256 grade;
         string imageUrl;
+        uint256 amount;
     }
 
     mapping(uint256 => Card) public cards;
 
-    event CardCertified(uint256 indexed tokenId, string name, uint256 grade, string imageUrl);
+    event CardCertified(uint256 indexed tokenId, string name, uint256 grade, string imageUrl, uint256 amount);
     event CardTransferred(uint256 indexed tokenId, address indexed from, address indexed to, uint256 amount);
     event CardBurned(uint256 indexed tokenId, address indexed owner, uint256 amount);
 
@@ -40,19 +41,23 @@ contract PokemonCertification is ERC1155, Ownable {
         _tokenIdCounter += 1;
 
         // Enregistrer les informations de la carte
-        cards[tokenId] = Card(name, grade, imageUrl);
+        cards[tokenId] = Card(name, grade, imageUrl, amount);
 
         // Mint le NFT et l'attribuer à l'adresse spécifiée
         _mint(owner, tokenId, amount, "");
 
         // Émettre un événement
-        emit CardCertified(tokenId, name, grade, imageUrl);
+        emit CardCertified(tokenId, name, grade, imageUrl, amount);
     }
 
-    function getCard(uint256 tokenId) public view returns (string memory name, uint256 grade, string memory imageUrl) {
+    function getCard(uint256 tokenId) public view returns (string memory name, uint256 grade, string memory imageUrl, uint256 amount) {
         require(exists(tokenId), "PokemonCertification: card does not exist");
         Card memory card = cards[tokenId];
-        return (card.name, card.grade, card.imageUrl);
+        return (card.name, card.grade, card.imageUrl, amount);
+    }
+
+    function getNumberOfCards() public view returns (uint256 number) {
+        return _tokenIdCounter;
     }
 
     function transferCard(address to, uint256 tokenId, uint256 amount) public {
